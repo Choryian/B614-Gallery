@@ -52,8 +52,6 @@
     if (e.key === "Escape" || e.key === "Enter") goLobby();
   });
 
-  buildSeating();
-
   // 사진 미리 로드 후 상영 시작
   preload(FRAMES.map((f) => f.src)).then(start);
   // 혹시 로딩이 지나치게 늦어도 1.8초 뒤엔 시작

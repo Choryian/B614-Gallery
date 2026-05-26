@@ -13,67 +13,50 @@
 </head>
 <body class="bridge-body">
   <main class="cinema" id="cinema" aria-label="B614 상영관">
-    <!-- 벽 조명 -->
-    <span class="sconce sconce-l" aria-hidden="true"></span>
-    <span class="sconce sconce-r" aria-hidden="true"></span>
-
-    <!-- 무대 -->
-    <div class="stage">
-      <div class="curtain curtain-l" aria-hidden="true"></div>
-      <div class="curtain curtain-r" aria-hidden="true"></div>
-
-      <div class="screen-frame">
-        <div class="screen" id="screen">
-          <!-- 로딩 -->
-          <div class="reel-loader" id="reelLoader">
-            <div class="reel-spin" aria-hidden="true"></div>
-            <p>필름을 거는 중…</p>
-          </div>
-
-          <!-- 카운트다운 리더 -->
-          <div class="leader hidden" id="leader" aria-hidden="true">
-            <div class="leader-sweep"></div>
-            <div class="leader-cross"></div>
-            <div class="leader-ring"></div>
-            <span class="leader-num" id="leaderNum">5</span>
-          </div>
-
-          <!-- 타이틀 카드 -->
-          <div class="film-card hidden" id="titleCard">
-            <p class="fc-kicker">B614 PICTURES 上映</p>
-            <h1 class="fc-title">B614</h1>
-            <p class="fc-sub">The Milky Way</p>
-            <p class="fc-line">6학년 14반, 우리들의 이야기</p>
-          </div>
-
-          <!-- 사진 몽타주 -->
-          <div class="montage hidden" id="montage">
-            <img class="montage-img" id="imgA" alt="" />
-            <img class="montage-img" id="imgB" alt="" />
-            <span class="montage-year" id="montageYear"></span>
-          </div>
-
-          <!-- 종료 카드 -->
-          <div class="film-card hidden" id="endCard">
-            <p class="fc-line">곧, 우리들의 이야기로</p>
-            <h2 class="fc-end">입장합니다</h2>
-          </div>
-
-          <!-- 필름 질감 오버레이 -->
-          <div class="grain" aria-hidden="true"></div>
-          <div class="vignette" aria-hidden="true"></div>
-          <div class="gate-flicker" aria-hidden="true"></div>
+    <!-- 실제 영화관 사진을 배경으로, 사진 속 스크린 위치에 영상 재생 -->
+    <div class="cinema-photo">
+      <div class="screen" id="screen">
+        <!-- 로딩 -->
+        <div class="reel-loader" id="reelLoader">
+          <div class="reel-spin" aria-hidden="true"></div>
+          <p>필름을 거는 중…</p>
         </div>
+
+        <!-- 카운트다운 리더 -->
+        <div class="leader hidden" id="leader" aria-hidden="true">
+          <div class="leader-sweep"></div>
+          <div class="leader-cross"></div>
+          <div class="leader-ring"></div>
+          <span class="leader-num" id="leaderNum">5</span>
+        </div>
+
+        <!-- 타이틀 카드 -->
+        <div class="film-card hidden" id="titleCard">
+          <p class="fc-kicker">B614 PICTURES 上映</p>
+          <h1 class="fc-title">B614</h1>
+          <p class="fc-sub">The Milky Way</p>
+          <p class="fc-line">6학년 14반, 우리들의 이야기</p>
+        </div>
+
+        <!-- 사진 몽타주 -->
+        <div class="montage hidden" id="montage">
+          <img class="montage-img" id="imgA" alt="" />
+          <img class="montage-img" id="imgB" alt="" />
+          <span class="montage-year" id="montageYear"></span>
+        </div>
+
+        <!-- 종료 카드 -->
+        <div class="film-card hidden" id="endCard">
+          <p class="fc-line">곧, 우리들의 이야기로</p>
+          <h2 class="fc-end">입장합니다</h2>
+        </div>
+
+        <!-- 필름 질감 오버레이 -->
+        <div class="grain" aria-hidden="true"></div>
+        <div class="vignette" aria-hidden="true"></div>
+        <div class="gate-flicker" aria-hidden="true"></div>
       </div>
-
-      <div class="stage-glow" aria-hidden="true"></div>
     </div>
-
-    <!-- 영사 광선 -->
-    <div class="beam" aria-hidden="true"><span class="dust"></span></div>
-
-    <!-- 객석 -->
-    <div class="seating" id="seating" aria-hidden="true"></div>
 
     <button class="skip-btn" id="skipBtn" type="button">건너뛰기 ▸</button>
   </main>
