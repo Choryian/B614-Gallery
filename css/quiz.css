@@ -2,6 +2,8 @@
    B614 추억 퀴즈룸
    ============================================================ */
 .page-quiz{min-height:100vh;position:relative}
+/* 문제/결과 화면 전환: hidden 이면 완전히 감춰 같은 페이지에 쌓이지 않게 */
+.quiz-stage.hidden,.quiz-result.hidden{display:none!important}
 .quiz-wrap{
   position:relative;z-index:1;min-height:100vh;
   display:flex;flex-direction:column;align-items:center;justify-content:center;
