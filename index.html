@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="robots" content="noindex,nofollow" />
+  <title>B614 — The Milky Way</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Noto+Serif+KR:wght@400;600;900&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body class="page-intro">
+  <canvas id="starfield" aria-hidden="true"></canvas>
+
+  <main class="intro-wrap" id="introWrap">
+    <div class="intro-card">
+      <div class="planet" aria-hidden="true">
+        <span class="planet-ring"></span>
+        <span class="planet-body"></span>
+      </div>
+      <p class="kicker">THE MILKY WAY · est. 2000</p>
+      <h1 class="logo">B<span class="logo-num">614</span></h1>
+      <p class="tagline" id="introTagline">6학년 14반, 우리들의 이야기</p>
+      <p class="intro-text" id="introText">작은 별 B614에 오신 것을 환영합니다.</p>
+
+      <form id="gateForm" class="gate" autocomplete="off">
+        <label class="gate-label" for="pw">입장 비밀번호</label>
+        <div class="gate-row">
+          <input type="password" id="pw" name="pw" inputmode="text"
+                 placeholder="• • • • • • • •" aria-describedby="gateMsg" />
+          <button type="submit" class="gate-btn">입장</button>
+        </div>
+        <p class="gate-msg" id="gateMsg" role="status" aria-live="polite"></p>
+      </form>
+      <p class="hint">은하수를 건너 작은 별로 — B614 친구들만의 전시.</p>
+    </div>
+  </main>
+
+  <script src="js/auth.js"></script>
+  <script src="js/starfield.js"></script>
+  <script src="js/intro.js"></script>
+</body>
+</html>
