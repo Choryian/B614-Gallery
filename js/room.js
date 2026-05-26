@@ -243,6 +243,13 @@
       if (e.key === "Escape") closeLightbox();
       else if (e.key === "ArrowLeft") step(-1);
       else if (e.key === "ArrowRight") step(1);
+      else if (e.key === "ArrowUp" && rotatePhoto) {
+        e.preventDefault();
+        rotatePhoto(-1);
+      } else if (e.key === "ArrowDown" && rotatePhoto) {
+        e.preventDefault();
+        rotatePhoto(1);
+      }
     });
   }
 
@@ -268,22 +275,26 @@
     const ex = exhibits[lbIndex];
     const photos = (ex.photos || []).map(B614Catalog.photoSrc);
 
-    const imgs = photos.length
+    const n = photos.length;
+    const imgs = n
       ? photos
           .map(
-            (src) =>
-              '<img alt="' +
+            (src, i) =>
+              '<img class="lb-photo' +
+              (i === 0 ? " active" : "") +
+              '" alt="' +
               escapeAttr(ex.title || "") +
               '" src="' +
               escapeAttr(src) +
               '" onerror="this.outerHTML=\'<div class=&quot;ph-fallback&quot;>FILM</div>\'" />'
           )
-          .join("")
+          .join("") +
+        (n > 1
+          ? '<button class="lb-rot up" type="button" aria-label="이전 사진">▲</button>' +
+            '<button class="lb-rot down" type="button" aria-label="다음 사진">▼</button>' +
+            '<span class="lb-photo-idx">1 / ' + n + "</span>"
+          : "")
       : quoteCardHtml(ex);
-
-    // 사진 장수에 맞춰 각 사진 최대 높이를 정해 잘림/스크롤 없이 모두 보이게 한다.
-    const n = photos.length;
-    const ih = n <= 1 ? 76 : Math.max(16, Math.floor((84 - (n - 1) * 1.6) / n));
 
     const speakers =
       ex.speakers && ex.speakers.length
@@ -295,9 +306,7 @@
         : "";
 
     lbStage.innerHTML =
-      '<div class="lb-imgs" style="--ih:' +
-      ih +
-      'vh">' +
+      '<div class="lb-imgs">' +
       imgs +
       "</div>" +
       '<div class="lb-info">' +
@@ -315,7 +324,7 @@
       "</div>";
 
     lbStage.scrollTop = 0;
-    setupPhotoZoom();
+    setupPhotoRotator();
     setupInfoFade();
     document
       .getElementById("lbPrev")
@@ -325,25 +334,50 @@
       .classList.toggle("disabled", lbIndex === exhibits.length - 1);
   }
 
-  /* 왼쪽 썸네일에 마우스를 올리면 그 사진을 왼쪽 칸 전체 크기로 확대해 보여준다. */
-  function setupPhotoZoom() {
+  /* 여러 장일 때: 한 장씩 크게 보여주고 위/아래 버튼으로 회전(순환) */
+  let rotatePhoto = null; // 키보드(↑/↓)에서 호출
+  function setupPhotoRotator() {
+    rotatePhoto = null;
     const box = lbStage.querySelector(".lb-imgs");
     if (!box) return;
-    const thumbs = [].slice.call(box.querySelectorAll("img"));
-    if (thumbs.length < 2) return; // 한 장이면 이미 크게 보이므로 생략
-    const zoom = document.createElement("div");
-    zoom.className = "lb-zoom";
-    zoom.innerHTML = '<img alt="" />';
-    box.appendChild(zoom);
-    const zimg = zoom.querySelector("img");
-    thumbs.forEach((t) => {
-      t.style.cursor = "zoom-in";
-      t.addEventListener("mouseenter", () => {
-        zimg.src = t.src;
-        zoom.classList.add("show");
-      });
-    });
-    box.addEventListener("mouseleave", () => zoom.classList.remove("show"));
+    const photos = [].slice.call(box.querySelectorAll(".lb-photo"));
+    if (photos.length < 2) return; // 한 장이면 회전 불필요
+    const idxEl = box.querySelector(".lb-photo-idx");
+    let cur = 0;
+    let busy = false;
+
+    function go(dir) {
+      if (busy || photos.length < 2) return;
+      busy = true;
+      const old = photos[cur];
+      cur = (cur + dir + photos.length) % photos.length;
+      const neu = photos[cur];
+      // 들어오는 사진을 반대편에 위치시킨 뒤 제자리로
+      neu.style.transition = "none";
+      neu.style.transform =
+        dir > 0
+          ? "translateY(52px) rotateX(12deg)"
+          : "translateY(-52px) rotateX(-12deg)";
+      neu.classList.add("active");
+      void neu.offsetWidth; // reflow
+      neu.style.transition = "";
+      neu.style.transform = "";
+      // 나가는 사진
+      old.style.transform =
+        dir > 0
+          ? "translateY(-52px) rotateX(-12deg)"
+          : "translateY(52px) rotateX(12deg)";
+      old.classList.remove("active");
+      setTimeout(() => {
+        old.style.transform = "";
+        busy = false;
+      }, 520);
+      if (idxEl) idxEl.textContent = cur + 1 + " / " + photos.length;
+    }
+
+    box.querySelector(".lb-rot.up").addEventListener("click", () => go(-1));
+    box.querySelector(".lb-rot.down").addEventListener("click", () => go(1));
+    rotatePhoto = go; // ↑/↓ 키 연결
   }
 
   /* 오른쪽 글이 넘칠 때 하단에 '더 있음' 그라데이션 표시, 끝까지 내리면 사라진다. */
