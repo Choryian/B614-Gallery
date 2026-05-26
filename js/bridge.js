@@ -125,23 +125,26 @@
   function buildSeating() {
     const wrap = document.getElementById("seating");
     if (!wrap) return;
-    // [좌석수, 너비px, 높이px, 줄간격px]
+    // [좌석수, 너비px, 높이px, 줄간격px] — 뒤→앞(원근감), 4열
     const rows = [
-      [16, 40, 52, 4],
-      [13, 56, 74, 10],
-      [10, 78, 104, 16],
+      [20, 30, 38, 3],
+      [16, 42, 54, 7],
+      [13, 58, 78, 12],
+      [10, 80, 112, 18],
     ];
     rows.forEach((cfg) => {
       const [count, w, h, gap] = cfg;
       const row = document.createElement("div");
       row.className = "seat-row";
       row.style.gap = gap + "px";
-      row.style.marginBottom = -(h * 0.28) + "px";
+      row.style.marginBottom = -(h * 0.3) + "px";
+      const aisle = Math.floor(count / 2); // 중앙 통로
       for (let i = 0; i < count; i++) {
         const s = document.createElement("span");
         s.className = "seat";
         s.style.width = w + "px";
         s.style.height = h + "px";
+        if (i === aisle) s.style.marginLeft = w * 1.1 + "px";
         row.appendChild(s);
       }
       wrap.appendChild(row);
