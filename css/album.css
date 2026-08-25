@@ -1,0 +1,196 @@
+/* ============================================================
+   앨범 — 원본 페이지 한 장이 한 화면
+   4:3 페이지를 화면에 담으면 좌우에 여백이 남는다. 그 여백이 곧 넘김 존이다.
+   ============================================================ */
+
+.page-album{
+  height:100dvh;overflow:hidden;
+  background:
+    radial-gradient(130% 100% at 50% 50%, var(--navy-1) 0%, var(--navy-0) 55%, #03050d 100%);
+  cursor:default;
+}
+
+/* ---- 무대 ---- */
+.stage{
+  position:absolute;inset:0;
+  display:grid;place-items:center;
+  padding:clamp(.5rem,2.2vh,1.6rem);
+}
+.page-img{
+  position:absolute;
+  max-width:100%;max-height:100%;
+  width:auto;height:auto;
+  object-fit:contain;
+  border-radius:3px;
+  box-shadow:0 26px 70px rgba(0,0,0,.62), 0 0 0 1px rgba(201,162,90,.16);
+  opacity:0;
+  transition:opacity .18s ease, transform .18s ease;
+  will-change:opacity,transform;
+}
+.page-img.is-on{opacity:1;transform:none}
+.page-img.from-right{transform:translateX(10px)}
+.page-img.from-left{transform:translateX(-10px)}
+
+/* 로딩 표시 — 캐시된 페이지에선 보이지 않는다 */
+.loading{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  width:26px;height:26px;border-radius:50%;
+  border:2px solid rgba(201,162,90,.25);border-top-color:var(--gold);
+  animation:spin .8s linear infinite;
+  opacity:0;transition:opacity .25s;pointer-events:none;
+}
+.loading.is-on{opacity:1}
+@keyframes spin{to{transform:translate(-50%,-50%) rotate(360deg)}}
+
+/* ============================================================
+   좌·우 넘김 존 — 마우스가 들어오면 화살표가 떠오른다
+   ============================================================ */
+.navzone{
+  position:absolute;top:0;bottom:0;
+  width:18%;min-width:64px;max-width:180px;
+  z-index:5;
+  display:grid;place-items:center;
+  border:0;background:transparent;
+  cursor:pointer;
+  -webkit-tap-highlight-color:transparent;
+}
+.navzone.prev{left:0}
+.navzone.next{right:0}
+
+/* 존 안쪽으로 스며드는 옅은 빛 */
+.navzone::before{
+  content:"";position:absolute;inset:0;
+  opacity:0;transition:opacity .22s ease;
+  pointer-events:none;
+}
+.navzone.prev::before{background:linear-gradient(90deg, rgba(201,162,90,.10), transparent 78%)}
+.navzone.next::before{background:linear-gradient(270deg, rgba(201,162,90,.10), transparent 78%)}
+
+.arrow{
+  position:relative;z-index:1;
+  width:clamp(26px,3.2vw,42px);height:auto;
+  color:var(--gold-soft);
+  opacity:0;
+  transform:translateX(0) scale(.94);
+  transition:opacity .22s ease, transform .22s cubic-bezier(.2,.7,.2,1);
+  filter:drop-shadow(0 2px 10px rgba(0,0,0,.6));
+  pointer-events:none;
+}
+/* .is-near는 포인터가 화면 가장자리 띠에 들어오면 album.js가 붙인다.
+   :hover만 쓰면 커서가 페이지 이미지 위에 얹혔을 때 반응이 끊긴다. */
+.navzone.is-near::before,
+.navzone:hover::before{opacity:1}
+.navzone.is-near .arrow,
+.navzone:hover .arrow{opacity:1;transform:scale(1)}
+.navzone.prev.is-near .arrow,
+.navzone.prev:hover .arrow{transform:translateX(-3px) scale(1)}
+.navzone.next.is-near .arrow,
+.navzone.next:hover .arrow{transform:translateX(3px) scale(1)}
+.navzone:active .arrow{transform:scale(.9)}
+
+/* 끝에 닿으면 더 넘길 곳이 없다 */
+.navzone[disabled]{cursor:default}
+.navzone[disabled].is-near::before,
+.navzone[disabled]:hover::before{opacity:0}
+.navzone[disabled].is-near .arrow,
+.navzone[disabled]:hover .arrow{opacity:.18;transform:none}
+
+/* ============================================================
+   하단 레일 — 페이지 번호는 늘, 연도 바는 다가갈 때만
+   ============================================================ */
+.rail{
+  position:absolute;left:0;right:0;bottom:0;z-index:6;
+  display:flex;flex-direction:column;align-items:center;gap:.5rem;
+  padding:2.6rem 1rem .9rem;
+  pointer-events:none;
+  background:linear-gradient(0deg, rgba(3,5,13,.72), transparent);
+}
+
+.years{
+  display:flex;align-items:center;gap:.15rem;flex-wrap:wrap;justify-content:center;
+  opacity:0;transform:translateY(6px);
+  transition:opacity .28s ease, transform .28s ease;
+  pointer-events:none;
+}
+/* 키보드로 연도 바에 닿았을 때도 열려야 한다 */
+.rail.is-open .years,
+.rail:focus-within .years{opacity:1;transform:none;pointer-events:auto}
+
+.year{
+  font-family:var(--display);
+  font-size:.82rem;letter-spacing:.06em;
+  padding:.3em .62em;border-radius:7px;
+  border:1px solid transparent;background:transparent;
+  color:var(--ink-faint);
+  cursor:pointer;
+  transition:color .2s, background .2s, border-color .2s;
+}
+.year:hover{color:var(--gold-soft);background:rgba(201,162,90,.10);border-color:var(--line)}
+.year.is-current{color:#1a1300;background:linear-gradient(180deg,var(--kodak-soft),var(--kodak));border-color:var(--kodak)}
+
+/* 2009~2011 — 원본에 없는 해. 지우지 않고 빈자리로 남긴다 */
+.year-gap{
+  width:5px;height:5px;border-radius:50%;
+  background:rgba(111,120,156,.34);
+  margin:0 .16rem;
+  cursor:default;
+}
+
+.counter{
+  font-family:var(--display);
+  font-size:.82rem;letter-spacing:.2em;
+  color:var(--ink-faint);
+  pointer-events:none;
+  white-space:nowrap;
+}
+.counter b{color:var(--gold-soft);font-weight:600}
+.counter .sep{opacity:.4;margin:0 .55em}
+.counter .date{font-family:var(--serif);letter-spacing:.08em}
+
+/* 마지막 장 */
+.finis{
+  position:absolute;right:clamp(1rem,4vw,2.6rem);top:clamp(1rem,3vh,1.8rem);
+  z-index:7;
+  opacity:0;transform:translateY(-6px);
+  transition:opacity .4s ease, transform .4s ease;
+  pointer-events:none;
+}
+.finis.is-on{opacity:1;transform:none;pointer-events:auto}
+
+/* 세로 화면에서는 4:3 페이지가 작아진다 — 한 번만 귀띔한다 */
+.rotate-hint{
+  position:absolute;top:clamp(.8rem,2.4vh,1.6rem);left:50%;
+  transform:translateX(-50%);
+  z-index:8;
+  margin:0;padding:.45em 1.05em;
+  font-family:var(--batang);font-size:.78rem;letter-spacing:.02em;white-space:nowrap;
+  color:var(--ink-dim);
+  background:rgba(7,11,24,.82);
+  border:1px solid var(--line);border-radius:999px;
+  backdrop-filter:blur(6px);
+  opacity:0;pointer-events:none;
+  transition:opacity .5s ease;
+}
+.rotate-hint.is-on{opacity:1}
+
+/* ============================================================
+   손가락으로 넘기는 화면 — hover가 없으니 화살표를 항상 띄운다
+   ============================================================ */
+@media (hover:none), (max-width:768px){
+  .navzone{width:22%;min-width:52px}
+  .arrow{opacity:.42}
+  .navzone[disabled] .arrow{opacity:.12}
+  .navzone.is-near .arrow,.navzone:hover .arrow{opacity:.42}
+  .navzone.prev.is-near .arrow,.navzone.next.is-near .arrow,
+  .navzone.prev:hover .arrow,.navzone.next:hover .arrow{transform:none}
+
+  .rail{padding-top:2rem}
+  .years{opacity:1;transform:none;pointer-events:auto;gap:.05rem}
+  .year{font-size:.72rem;padding:.26em .45em}
+  .counter{font-size:.74rem;letter-spacing:.14em}
+}
+
+@media (prefers-reduced-motion:reduce){
+  .page-img{transition:opacity .01ms}
+  .page-img.from-right,.page-img.from-left{transform:none}
+}

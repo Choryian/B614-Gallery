@@ -1,57 +1,135 @@
-/* intro.js — 입장 게이트 검증 + 로비 전환 */
+/* intro.js — 입장 후 상영관 재생. 끝나면 앨범 첫 장으로 넘어간다.
+   필름 20프레임은 원본 PDF 2페이지(연표)의 사진들이다. */
 (function () {
   "use strict";
 
-  // 이미 인증된 상태로 인트로에 다시 오면 바로 로비로
-  if (window.B614Auth && B614Auth.isAuthed()) {
-    location.replace("lobby.html");
+  // 인증되지 않은 접근은 입구로
+  if (window.B614Auth && !B614Auth.isAuthed()) {
+    location.replace("index.html");
     return;
   }
 
-  // 카탈로그의 환영 문구를 인트로에 반영 (있으면)
-  if (window.B614Catalog) {
-    /* catalog.js 가 인트로엔 로드되지 않으므로 생략 가능 */
+  // PDF 2페이지의 필름 20개 프레임 — 연도순 정렬(프레임 위치↔연도 라벨 매칭 결과)
+  const ORDER = [
+    [4, "2000"], [5, "2002"], [1, "2003"], [2, "2004"], [3, "2004"],
+    [6, "2004"], [7, "2005"], [8, "2005"], [9, "2007"], [10, "2007"],
+    [11, "2013"], [12, "2013"], [13, "2014"], [14, "2014"], [15, "2015"],
+    [16, "2016"], [17, "2017"], [18, "2017"], [19, "2018"], [20, "2019"],
+  ];
+  const FRAMES = ORDER.map(([n, year]) => ({
+    src: "assets/bridge/frame" + String(n).padStart(2, "0") + ".jpeg",
+    year: year,
+  }));
+
+  const PER_FRAME = 900; // 프레임 한 장당(ms)
+
+  const cinema = document.getElementById("cinema");
+  const loader = document.getElementById("reelLoader");
+  const leader = document.getElementById("leader");
+  const leaderNum = document.getElementById("leaderNum");
+  const titleCard = document.getElementById("titleCard");
+  const montage = document.getElementById("montage");
+  const imgA = document.getElementById("imgA");
+  const imgB = document.getElementById("imgB");
+  const yearEl = document.getElementById("montageYear");
+  const endCard = document.getElementById("endCard");
+  const skipBtn = document.getElementById("skipBtn");
+
+  const timers = [];
+  let done = false;
+  const at = (ms, fn) => timers.push(setTimeout(fn, ms));
+  const show = (el) => el && el.classList.remove("hidden");
+  const hide = (el) => el && el.classList.add("hidden");
+
+  function goAlbum() {
+    if (done) return;
+    done = true;
+    timers.forEach(clearTimeout);
+    cinema.classList.add("fade-out");
+    setTimeout(() => location.replace("album.html"), 950);
+  }
+  skipBtn.addEventListener("click", goAlbum);
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" || e.key === "Enter") goAlbum();
+  });
+
+  // 사진 미리 로드 후 상영 시작
+  preload(FRAMES.map((f) => f.src)).then(start);
+  // 혹시 로딩이 지나치게 늦어도 1.8초 뒤엔 시작
+  setTimeout(() => start(), 1800);
+
+  let started = false;
+  function start() {
+    if (started || done) return;
+    started = true;
+    runTimeline();
   }
 
-  const form = document.getElementById("gateForm");
-  const pw = document.getElementById("pw");
-  const msg = document.getElementById("gateMsg");
-  const card = document.querySelector(".intro-card");
+  function runTimeline() {
+    let t = 0;
 
-  if (!form) return;
+    // 1) 로더 사라지고 카운트다운 리더
+    at(t, () => {
+      loader.style.opacity = "0";
+    });
+    t += 450;
+    at(t, () => {
+      hide(loader);
+      show(leader);
+    });
+    [5, 4, 3, 2, 1].forEach((n) => {
+      at(t, () => (leaderNum.textContent = n));
+      t += 800;
+    });
+    at(t, () => hide(leader));
 
-  let busy = false;
+    // 2) 타이틀 카드
+    at(t, () => show(titleCard));
+    t += 2600;
+    at(t, () => hide(titleCard));
 
-  form.addEventListener("submit", async function (e) {
-    e.preventDefault();
-    if (busy) return;
-    busy = true;
-    msg.className = "gate-msg";
-    msg.textContent = "확인 중…";
+    // 3) 사진 몽타주
+    at(t, () => show(montage));
+    FRAMES.forEach((f, i) => {
+      at(t, () => paintFrame(i));
+      t += PER_FRAME;
+    });
+    at(t, () => {
+      hide(montage);
+    });
 
-    const ok = await B614Auth.verify(pw.value);
+    // 4) 종료 카드 → 앨범
+    at(t, () => show(endCard));
+    t += 2200;
+    at(t, goAlbum);
+  }
 
-    if (ok) {
-      msg.className = "gate-msg ok";
-      msg.textContent = "환영합니다. 상영관으로 모시는 중…";
-      B614Auth.setAuthed();
-      card.classList.add("fade-out");
-      setTimeout(() => location.assign("bridge.html"), 700);
-    } else {
-      busy = false;
-      msg.className = "gate-msg error";
-      msg.textContent = "이 갤러리는 B614 친구들만 입장할 수 있습니다.";
-      card.classList.remove("shake");
-      void card.offsetWidth; // reflow → 애니메이션 재시작
-      card.classList.add("shake");
-      pw.select();
-    }
-  });
+  let frontLayer = true;
+  function paintFrame(i) {
+    const f = FRAMES[i];
+    const incoming = frontLayer ? imgA : imgB;
+    const outgoing = frontLayer ? imgB : imgA;
+    incoming.src = f.src;
+    incoming.classList.remove("kb");
+    void incoming.offsetWidth; // 애니메이션 재시작
+    incoming.classList.add("show", "kb");
+    outgoing.classList.remove("show");
+    frontLayer = !frontLayer;
 
-  pw.addEventListener("input", function () {
-    if (msg.classList.contains("error")) {
-      msg.className = "gate-msg";
-      msg.textContent = "";
-    }
-  });
+    yearEl.textContent = f.year;
+    yearEl.classList.add("show");
+  }
+
+  function preload(srcs) {
+    return Promise.all(
+      srcs.map(
+        (s) =>
+          new Promise((res) => {
+            const im = new Image();
+            im.onload = im.onerror = () => res();
+            im.src = s;
+          })
+      )
+    );
+  }
 })();

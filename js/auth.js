@@ -44,7 +44,7 @@
     } catch (e) {}
   }
 
-  // 보호된 페이지(로비/전시실/출구)에서 미인증이면 인트로로 돌려보냄
+  // 보호된 페이지에서 미인증이면 입구로 돌려보냄
   function guard() {
     if (!isAuthed()) {
       location.replace("index.html");
@@ -55,15 +55,8 @@
 
   window.B614Auth = { verify, isAuthed, setAuthed, clear, guard, sha256Hex };
 
-  // 인트로 외 페이지는 즉시 가드 (data-guard 속성 없이 body class로 판별)
+  // 입장 화면 외에는 즉시 가드 (body class로 판별)
   document.addEventListener("DOMContentLoaded", function () {
-    const b = document.body;
-    if (
-      b.classList.contains("page-lobby") ||
-      b.classList.contains("page-room") ||
-      b.classList.contains("page-exit")
-    ) {
-      guard();
-    }
+    if (document.body.classList.contains("page-album")) guard();
   });
 })();

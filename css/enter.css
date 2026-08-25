@@ -1,0 +1,89 @@
+/* ============================================================
+   입장 — 원본 표지(p1)를 그대로 세우고 그 앞에 문을 둔다
+   4:3 표지가 화면에 놓이면 좌우에 여백이 남고, 그 여백은 은하수가 채운다
+   ============================================================ */
+
+.page-enter{
+  position:relative;
+  height:100dvh;
+  overflow:hidden;
+  background:radial-gradient(120% 90% at 50% -10%, var(--navy-2) 0%, var(--navy-0) 60%, #03050d 100%);
+}
+
+.enter-stage{
+  position:relative;z-index:1;
+  height:100dvh;
+  display:grid;
+  place-items:center;
+  padding:2.4vh 1rem 1rem;
+}
+
+/* ---- 표지 ---- */
+.cover-frame{
+  position:relative;
+  max-width:min(96vw, 152vh);   /* 4:3 + 아래 게이트 높이를 고려한 여유 */
+  max-height:100%;
+  animation:coverIn 1.4s cubic-bezier(.2,.7,.2,1) both;
+}
+.cover-frame img{
+  width:100%;height:auto;
+  max-height:78dvh;
+  object-fit:contain;
+  border-radius:4px;
+  box-shadow:0 30px 80px rgba(0,0,0,.7), 0 0 0 1px rgba(201,162,90,.22);
+}
+/* 표지 위로 아주 옅은 필름 톤 */
+.cover-frame::after{
+  content:"";position:absolute;inset:0;border-radius:4px;pointer-events:none;
+  background:radial-gradient(120% 100% at 50% 40%, transparent 55%, rgba(3,5,13,.45) 100%);
+}
+@keyframes coverIn{
+  from{opacity:0;transform:translateY(18px) scale(.985)}
+  to{opacity:1;transform:none}
+}
+
+/* ---- 게이트 ---- */
+.gate{
+  margin-top:clamp(1.1rem,2.6vh,2rem);
+  text-align:center;
+  animation:gateIn 1.1s .5s cubic-bezier(.2,.7,.2,1) both;
+}
+@keyframes gateIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+
+.gate-label{
+  display:block;font-size:.7rem;letter-spacing:.34em;
+  color:var(--ink-faint);text-transform:uppercase;margin-bottom:.7rem;
+}
+.gate-row{display:flex;gap:.55rem;justify-content:center;flex-wrap:wrap}
+
+#pw{
+  flex:1;min-width:0;width:min(300px,70vw);
+  font-family:var(--serif);font-size:1.02rem;letter-spacing:.2em;text-align:center;
+  padding:.72em 1em;color:var(--ink);
+  background:rgba(255,255,255,.05);
+  border:1px solid var(--line);border-radius:11px;outline:none;
+  transition:border-color .3s, box-shadow .3s;
+}
+#pw:focus{border-color:var(--kodak);box-shadow:0 0 0 3px rgba(255,179,0,.15)}
+
+.gate-btn{
+  font-weight:600;letter-spacing:.18em;
+  padding:.72em 1.9em;border-radius:11px;cursor:pointer;
+  color:#1a1300;border:1px solid var(--kodak);
+  background:linear-gradient(180deg,var(--kodak-soft),var(--kodak));
+  transition:box-shadow .3s, transform .3s;
+}
+.gate-btn:hover{box-shadow:0 0 24px rgba(255,179,0,.4);transform:translateY(-1px)}
+
+.gate-msg{
+  min-height:1.5em;margin-top:.85rem;font-size:.9rem;
+  color:var(--ink-dim);font-family:var(--batang);
+}
+.gate-msg.error{color:#ff9a8b}
+.gate-msg.ok{color:var(--kodak-soft)}
+
+@media (max-width:560px){
+  .cover-frame img{max-height:60dvh}
+  .gate-row{flex-direction:column;align-items:center}
+  #pw,.gate-btn{width:min(300px,80vw)}
+}

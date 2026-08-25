@@ -1,0 +1,75 @@
+/* ============================================================
+   B614 — The Milky Way
+   공통 토큰 / 리셋 / 세 화면(입장·상영관·앨범)이 함께 쓰는 조각
+   ============================================================ */
+
+:root{
+  --navy-0:#070b18;     /* 가장 깊은 밤 */
+  --navy-1:#0c1224;
+  --navy-2:#121a33;
+  --navy-3:#1b2748;
+  --gold:#c9a25a;
+  --gold-soft:#e3c98e;
+  --gold-deep:#9a7836;
+  --kodak:#ffb300;      /* 코닥 옐로우 */
+  --kodak-soft:#ffd166;
+  --ink:#eef1fb;
+  --ink-dim:#aab2cf;
+  --ink-faint:#6f789c;
+  --line:rgba(201,162,90,.28);
+  --shadow:0 18px 50px rgba(0,0,0,.55);
+  --serif:"Noto Serif KR","Gowun Batang",serif;
+  --batang:"Gowun Batang",serif;
+  --display:"Cormorant Garamond",serif;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  font-family:var(--serif);
+  color:var(--ink);
+  background:var(--navy-0);
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+  line-height:1.7;
+}
+a{color:inherit;text-decoration:none}
+img{display:block;max-width:100%}
+button{font:inherit;color:inherit}
+::selection{background:var(--kodak);color:#1a1300}
+
+#starfield{position:fixed;inset:0;z-index:0;width:100%;height:100%;display:block}
+
+.kicker{
+  font-family:var(--display);
+  letter-spacing:.42em;
+  text-transform:uppercase;
+  font-size:.72rem;
+  color:var(--gold);
+}
+
+.ghost-link{
+  color:var(--ink-faint);font-family:var(--display);
+  letter-spacing:.25em;font-size:.85rem;
+  transition:color .3s;
+}
+.ghost-link:hover{color:var(--gold-soft)}
+
+.shake{animation:shake .5s}
+@keyframes shake{
+  0%,100%{transform:translateX(0)}
+  15%,55%{transform:translateX(-9px)}
+  35%,75%{transform:translateX(9px)}
+}
+.fade-out{animation:fadeOut .7s forwards}
+@keyframes fadeOut{to{opacity:0;transform:scale(1.04);filter:blur(3px)}}
+
+.hidden{display:none !important}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{
+    animation-duration:.01ms !important;
+    animation-iteration-count:1 !important;
+    transition-duration:.01ms !important;
+  }
+}
